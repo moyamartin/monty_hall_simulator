@@ -35,3 +35,5 @@ include_directories(
   ${CMAKE_BINARY_DIR}/exports/
   ${CMAKE_BINARY_DIR}/googletest-src/googletest/include/
 )
+
+add_subdirectory(src/)

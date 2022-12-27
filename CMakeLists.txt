@@ -15,6 +15,7 @@ endif()
 SET( PROJ_NAME      "monty_hall_simulator" )
 SET( PROJ_PATH      ${CMAKE_SOURCE_DIR} )
 SET( PROJ_OUT_PATH  ${CMAKE_BINARY_DIR} )
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 option(BUILD_DOC "Build documentation" ON)
 # not used for the moment
 #SET( PROJ_LIBRARIES )

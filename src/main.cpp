@@ -5,7 +5,7 @@
 #include "MontyHall.hpp"
 #include "Player.hpp"
 
-static constexpr int number_of_doors = 3;
+static constexpr int number_of_doors = 2;
 
 void print_intro();
 
@@ -16,7 +16,7 @@ int main() {
     int won = 0;
     float probability;
     print_intro();
-    Player player("Martin", number_of_doors, true);
+    Player player("Martin", number_of_doors, false);
     MontyHall monty_hall(number_of_doors);
 
     std::cout << player.get_name() << " is picking a door" << std::endl;
@@ -27,7 +27,7 @@ int main() {
     std::cout << monty_hall.get_name() << " picked door #" << monty_hall_door
               << std::endl;
     int second_door = player.pick_door(monty_hall_door);
-    std::cout << player.get_name() << " second pick is door #" << first_door
+    std::cout << player.get_name() << " second pick is door #" << second_door
               << std::endl;
     bool has_won = monty_hall.has_won(second_door);
     std::cout << "Has the player won? " << has_won << std::endl;

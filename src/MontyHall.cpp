@@ -18,3 +18,5 @@ int MontyHall::pick_door(int door_param) {
 bool MontyHall::has_won(int choosen_door_number) {
     return choosen_door_number == _car_door_number;
 }
+
+int MontyHall::get_car_door_number() { return _car_door_number; }

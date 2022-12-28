@@ -37,7 +37,15 @@ class MontyHall : public Person {
     ///
     /// @return
     ///     true if won, false if the user lost
+    ///
     bool has_won(int chosen_door_number);
+
+    ///
+    /// get_car_door_number
+    /// @brief
+    ///     Returns the value of _car_door_number
+    ///
+    int get_car_door_number();
 
   private:
     ///

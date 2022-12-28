@@ -29,12 +29,20 @@ bool run_simulation(bool player_keep_same_door) {
 }
 
 int main(int argc, char *argv[]) {
+    spdlog::level::level_enum verbosity = spdlog::level::info;
     // Parse arguments
     argparse::ArgumentParser program("monty_hall_simulation", "0.0.1");
     program.add_argument("-s")
         .help("The number of simulations to run")
         .default_value(1000)
         .scan<'d', int>();
+    program.add_argument("-v")
+        .action([&](const auto &) { verbosity = spdlog::level::debug; })
+        .help("Set logging to debug level for verbosity")
+        .default_value(false)
+        .implicit_value(true)
+        .nargs(0);
+
     program.add_description(
         "This software implements a simulation of the "
         "Monty Hall problem, it will run the amount of simulations "
@@ -51,9 +59,11 @@ int main(int argc, char *argv[]) {
     int number_of_iterations = program.get<int>("-s");
     int won_keep_same_door = 0;
     int won_choose_new_door = 0;
+    spdlog::set_level(verbosity);
     spdlog::info("Monty Hall Problem Simulatior (C++11)");
     spdlog::debug("Running simulation for {} iterations", number_of_iterations);
     for (int i = 0; i < number_of_iterations; ++i) {
+        spdlog::debug("Running iteration number #{}", number_of_iterations + 1);
         won_keep_same_door += run_simulation(true);
         won_choose_new_door += run_simulation(false);
     }

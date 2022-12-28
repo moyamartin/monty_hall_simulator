@@ -62,13 +62,25 @@ source_group(continuous-integration REGULAR_EXPRESSION ".*[.]yml")
 
 
 #-------------------------------------------------------------------------------
+#	EXTERNAL LIBRARIES
+#-------------------------------------------------------------------------------
+# fetch latest argparse
+include(FetchContent)
+FetchContent_Declare(
+    argparse
+    GIT_REPOSITORY https://github.com/p-ranav/argparse.git
+)
+FetchContent_MakeAvailable(argparse)
+
+
+#-------------------------------------------------------------------------------
 #	GENERATE EXECUTABLES
 #-------------------------------------------------------------------------------
 # add the binary tree to the search path for include files
 # so that we will find TutorialConfig.h
 INCLUDE_DIRECTORIES( ${PROJ_INCLUDES} )
 ADD_EXECUTABLE( ${PROJ_NAME} ${PROJ_SOURCES} ${PROJ_SOURC})
-TARGET_LINK_LIBRARIES( ${PROJ_NAME} ${PROJ_LIBRARIES} )
+TARGET_LINK_LIBRARIES( ${PROJ_NAME} ${PROJ_LIBRARIES} argparse)
 
 # Add debug postfix to executable name
 SET_TARGET_PROPERTIES(${PROJ_NAME} PROPERTIES DEBUG_POSTFIX "-debug")

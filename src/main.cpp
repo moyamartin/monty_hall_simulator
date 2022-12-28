@@ -1,6 +1,7 @@
 /// Copyright 2022 Martin Moya <moyamartin1@gmail.com>
 //
 #include <iostream>
+#include <thread>
 
 #include "MontyHall.hpp"
 #include "Player.hpp"
@@ -8,11 +9,34 @@
 #include <argparse/argparse.hpp>
 
 static constexpr int number_of_doors = 2;
+static constexpr char thread_log_pattern[] =
+    "*** [%H:%M:%S %z] [thread %t] %v***";
 
-void print_intro() { std::cout << "Welcome to the MontyHall show!"; }
+void print_intro() {
+    std::cout << "Welcome to the MontyHall show!" << std::endl;
+}
 
-bool run_simulation(bool player_keep_same_door) {
-    Player player("Martin", number_of_doors, player_keep_same_door);
+bool run_simulation(const char *name, bool player_keep_same_door);
+void thread_simulation(int iterations, int thread_id);
+
+void thread_simulation(int iterations, int thread_id) {
+    spdlog::info("Running thread {} with {} iterations", thread_id, iterations);
+    /*
+    int won_keep_same_door = 0;
+    int won_choose_new_door = 0;
+    */
+    for (int i = 0; i < iterations; ++i) {
+        spdlog::debug("Running iteration number #{}", i + 1);
+        /*
+        won_keep_same_door += run_simulation("thread_1", true);
+        won_choose_new_door += run_simulation("thread 1", false);
+        */
+    }
+    spdlog::info("");
+}
+
+bool run_simulation(const char *name, bool player_keep_same_door) {
+    Player player(name, number_of_doors, player_keep_same_door);
     MontyHall monty_hall(number_of_doors);
 
     spdlog::debug("{} is picking a door", player.get_name());
@@ -29,8 +53,11 @@ bool run_simulation(bool player_keep_same_door) {
 }
 
 int main(int argc, char *argv[]) {
+    /* configure spdlog */
     spdlog::level::level_enum verbosity = spdlog::level::info;
-    // Parse arguments
+    spdlog::set_pattern(thread_log_pattern);
+
+    /* configure arguments*/
     argparse::ArgumentParser program("monty_hall_simulation", "0.0.1");
     program.add_argument("-s")
         .help("The number of simulations to run")
@@ -46,14 +73,16 @@ int main(int argc, char *argv[]) {
         .default_value(false)
         .implicit_value(true)
         .nargs(0);
-
     program.add_description(
         "This software implements a simulation of the "
         "Monty Hall problem, it will run the amount of simulations "
         "specified by the -s flag");
+
+    /* try to parse arguments */
     try {
         program.parse_args(argc, argv);
     } catch (const std::runtime_error &err) {
+        /* if it fails be cause an argument is invalid, show help */
         spdlog::warn("{}", err.what());
         std::cout << program << std::endl;
         std::exit(1);
@@ -61,14 +90,19 @@ int main(int argc, char *argv[]) {
 
     // parse the number of iterations
     int number_of_iterations = program.get<int>("-s");
+    int number_of_jobs = program.get<int>("-j");
     int won_keep_same_door = 0;
     int won_choose_new_door = 0;
     spdlog::set_level(verbosity);
     spdlog::info("Monty Hall Problem Simulatior (C++11)");
     spdlog::debug("Running simulation for {} iterations", number_of_iterations);
+    for (int j = 0; j < number_of_jobs; ++j) {
+        thread_simulation(number_of_iterations, 10);
+    }
+    /*
     for (int i = 0; i < number_of_iterations; ++i) {
         spdlog::debug("Running iteration number #{}", number_of_iterations + 1);
-        won_keep_same_door += run_simulation(true);
+        won_keep_same_door += run_simulation("thread_1", true);
         won_choose_new_door += run_simulation(false);
     }
     float probability_choose_new_door =
@@ -83,4 +117,5 @@ int main(int argc, char *argv[]) {
                  probability_keep_same_door);
     spdlog::info("Probability of winning changing the door {:03.2f}%",
                  probability_choose_new_door);
+                 */
 }

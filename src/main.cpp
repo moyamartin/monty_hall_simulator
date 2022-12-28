@@ -29,11 +29,12 @@ bool run_simulation(bool player_keep_same_door) {
 }
 
 int main(int argc, char *argv[]) {
-
+    // Parse arguments
     argparse::ArgumentParser program("monty_hall_simulation", "0.0.1");
     program.add_argument("-s")
         .help("The number of simulations to run")
-        .default_value(1000);
+        .default_value(1000)
+        .scan<'d', int>();
     program.add_description(
         "This software implements a simulation of the "
         "Monty Hall problem, it will run the amount of simulations "
@@ -45,6 +46,7 @@ int main(int argc, char *argv[]) {
         std::cout << program << std::endl;
         std::exit(1);
     }
+
     // parse the number of iterations
     int number_of_iterations = program.get<int>("-s");
     int won_keep_same_door = 0;
@@ -63,8 +65,8 @@ int main(int argc, char *argv[]) {
         (static_cast<float>(won_keep_same_door) /
          static_cast<float>(number_of_iterations)) *
         100.0;
-    spdlog::info("Probability of winning keeping the same door {}%",
+    spdlog::info("Probability of winning keeping the same door {:03.2f}%",
                  probability_keep_same_door);
-    spdlog::info("Probability of winning changing the door {}%",
+    spdlog::info("Probability of winning changing the door {:03.2f}%",
                  probability_choose_new_door);
 }

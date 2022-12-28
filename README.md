@@ -28,12 +28,20 @@ depicted:
 ```
 .
 ├── build                   # Compiled files
-├── docs                    # Documentation files 
+├── docs                    # Documentation source files
 ├── src                     # Source files 
-├── test                    # Automated tests 
+├── test                    # unit and integration tests 
 ├── inc                     # Header files
 └── README.md               # Repository description
 ```
+
+## Dependencies
+
+In this project the following dependencies were implemented:
+
+* [`argparse`](https://github.com/p-ranav/argparse)
+* [`gtest`](https://github.com/google/googletest)
+* [`spdlog`](https://github.com/gabime/spdlog)
 
 # Compile and run
 
@@ -46,7 +54,7 @@ In order to build this project run:
 cd build 
 cmake .. 
 make -j<n_cores>
-./monty_hall_simulator
+./monty_hall_simulator [-s <number_of_simulations>]
 ```
 
 To run unit and integration tests:
@@ -55,7 +63,3 @@ To run unit and integration tests:
 cd build
 ctest
 ```
-
-# Generate documentation
-
-In order to generate Doxygen files

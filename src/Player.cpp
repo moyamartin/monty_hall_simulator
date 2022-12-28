@@ -1,4 +1,12 @@
 /// Copyright 2022 Martin Moya <moyamartin1@gmail.com>
+///
+/// @file       Player.cpp
+/// @brief      Contains the definition of function members from the class
+///             Player
+/// @version    0.0.1
+/// @date       26. Dec. 2022
+/// @author     Martin Moya
+///
 #include <Player.hpp>
 
 Player::Player(const char *name, int max_door_number, bool repeat_door)

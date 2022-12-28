@@ -1,4 +1,13 @@
 /// Copyright 2022 Martin Moya <moyamartin1@gmail.com>
+///
+/// @file       MontyHall.cpp
+/// @brief      Contains the definition of function members from the class
+///             MontyHall
+/// @version    0.0.1
+/// @date       26. Dec. 2022
+/// @author     Martin Moya
+///
+
 #include <MontyHall.hpp>
 
 MontyHall::MontyHall(int max_door_number)

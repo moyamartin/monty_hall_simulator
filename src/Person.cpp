@@ -1,4 +1,12 @@
 /// Copyright 2022 Martin Moya <moyamartin1@gmail.com>
+///
+/// @file       Person.cpp
+/// @brief      Contains the definition of function members from the class
+///             Person
+/// @version    0.0.1
+/// @date       26. Dec. 2022
+/// @author     Martin Moya
+///
 #include <Person.hpp>
 
 Person::Person(const char *name, int min_range, int max_range)

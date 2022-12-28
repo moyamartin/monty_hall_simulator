@@ -20,7 +20,7 @@ class MontyHall : public Person {
     ///
     /// pick_door
     /// @brief
-    ///     Picks a door that it is a goat and different than the parameter
+    ///     Picks a door that it is a goat and different than door_param
     /// @param
     ///     door_param (int): MontyHall always has to pick a door different
     ///     than the car and the one that the player picked

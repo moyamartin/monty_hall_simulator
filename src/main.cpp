@@ -4,6 +4,7 @@
 
 #include "MontyHall.hpp"
 #include "Player.hpp"
+#include "spdlog/spdlog.h"
 #include <argparse/argparse.hpp>
 
 static constexpr int number_of_doors = 2;
@@ -14,18 +15,16 @@ bool run_simulation(bool player_keep_same_door) {
     Player player("Martin", number_of_doors, player_keep_same_door);
     MontyHall monty_hall(number_of_doors);
 
-    std::cout << player.get_name() << " is picking a door" << std::endl;
+    spdlog::debug("{} is picking a door", player.get_name());
     int first_door = player.pick_door(-1);
-    std::cout << player.get_name() << " picked door #" << first_door
-              << std::endl;
+    spdlog::debug("{} picked door #{}", player.get_name(), first_door);
     int monty_hall_door = monty_hall.pick_door(first_door);
-    std::cout << monty_hall.get_name() << " picked door #" << monty_hall_door
-              << std::endl;
+    spdlog::debug("{} picked door #{}", monty_hall.get_name(), monty_hall_door);
     int second_door = player.pick_door(monty_hall_door);
-    std::cout << player.get_name() << " second pick is door #" << second_door
-              << std::endl;
+    spdlog::debug("{} second pick is door #{}", player.get_name(), second_door);
     bool has_won = monty_hall.has_won(second_door);
-    std::cout << "Has the player won? " << has_won << std::endl;
+    spdlog::debug("{} has won? {}", player.get_name(),
+                  (has_won ? "yes" : "no"));
     return has_won;
 }
 
@@ -42,14 +41,16 @@ int main(int argc, char *argv[]) {
     try {
         program.parse_args(argc, argv);
     } catch (const std::runtime_error &err) {
-        std::cerr << err.what() << std::endl;
-        std::cerr << program;
+        spdlog::warn("{}", err.what());
+        std::cout << program << std::endl;
         std::exit(1);
     }
     // parse the number of iterations
     int number_of_iterations = program.get<int>("-s");
     int won_keep_same_door = 0;
     int won_choose_new_door = 0;
+    spdlog::info("Monty Hall Problem Simulatior (C++11)");
+    spdlog::debug("Running simulation for {} iterations", number_of_iterations);
     for (int i = 0; i < number_of_iterations; ++i) {
         won_keep_same_door += run_simulation(true);
         won_choose_new_door += run_simulation(false);
@@ -62,9 +63,8 @@ int main(int argc, char *argv[]) {
         (static_cast<float>(won_keep_same_door) /
          static_cast<float>(number_of_iterations)) *
         100.0;
-
-    std::cout << "Probability of winning keeping the same door "
-              << probability_keep_same_door << "%" << std::endl;
-    std::cout << "Probability of winning changing the door "
-              << probability_choose_new_door << "%" << std::endl;
+    spdlog::info("Probability of winning keeping the same door {}%",
+                 probability_keep_same_door);
+    spdlog::info("Probability of winning changing the door {}%",
+                 probability_choose_new_door);
 }

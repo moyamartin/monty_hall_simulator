@@ -21,6 +21,7 @@ option(BUILD_DOC "Build documentation" ON)
 #SET( PROJ_LIBRARIES )
 SET( PROJ_INCLUDES 
   inc
+  lib
   ${CMAKE_BINARY_DIR}/exports
 )
 ADD_DEFINITIONS( -Dshared_EXPORTS )
@@ -79,8 +80,9 @@ FetchContent_MakeAvailable(argparse)
 # add the binary tree to the search path for include files
 # so that we will find TutorialConfig.h
 INCLUDE_DIRECTORIES( ${PROJ_INCLUDES} )
-ADD_EXECUTABLE( ${PROJ_NAME} ${PROJ_SOURCES} ${PROJ_SOURC})
-TARGET_LINK_LIBRARIES( ${PROJ_NAME} ${PROJ_LIBRARIES} argparse)
+ADD_EXECUTABLE( ${PROJ_NAME} ${PROJ_SOURCES} ${PROJ_SOURC} )
+TARGET_LINK_LIBRARIES( ${PROJ_NAME} ${PROJ_LIBRARIES} argparse
+                       ${CMAKE_SOURCE_DIR}/lib/libspdlog.a )
 
 # Add debug postfix to executable name
 SET_TARGET_PROPERTIES(${PROJ_NAME} PROPERTIES DEBUG_POSTFIX "-debug")

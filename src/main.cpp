@@ -36,6 +36,10 @@ int main(int argc, char *argv[]) {
         .help("The number of simulations to run")
         .default_value(1000)
         .scan<'d', int>();
+    program.add_argument("-j")
+        .help("The number of jobs to run simultaneously")
+        .default_value(1)
+        .scan<'d', int>();
     program.add_argument("-v")
         .action([&](const auto &) { verbosity = spdlog::level::debug; })
         .help("Set logging to debug level for verbosity")

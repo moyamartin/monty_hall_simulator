@@ -43,6 +43,27 @@ In this project the following dependencies were implemented:
 * [`gtest`](https://github.com/google/googletest)
 * [`spdlog`](https://github.com/gabime/spdlog)
 
+# Development tools
+
+In order to start working with this repository, the following tools need to be
+installed:
+
+* [`cmake`](https://cmake.org/)
+* [`GCC`](https://gcc.gnu.org/)
+* [`pre-commit`](https://pre-commit.com/)
+* [`clang-format`](https://clang.llvm.org/docs/ClangFormat.html)
+* [`cppcheck`](https://cppcheck.sourceforge.io/)
+* [`libc++-dev`](https://libcxx.llvm.org/)
+
+TL;DR:
+
+Run the following command
+
+```
+sudo apt install cmake build-essentials pre-commit python3-pip clang-format cppcheck
+pip install pre-commit
+```
+
 # Compile and run
 
 As stated earlier, this project is `CMake` based, in order to be built g++

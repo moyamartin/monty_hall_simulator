@@ -1,6 +1,7 @@
 /// Copyright 2022 Martin Moya <moyamartin1@gmail.com>
 //
 #include <iostream>
+#include <mutex>
 #include <thread>
 
 #include "MontyHall.hpp"
@@ -9,30 +10,31 @@
 #include <argparse/argparse.hpp>
 
 static constexpr int number_of_doors = 2;
-static constexpr char thread_log_pattern[] =
-    "*** [%H:%M:%S %z] [thread %t] %v***";
+static constexpr char thread_log_pattern[] = "[%H:%M:%S %z] [thread %t] %v";
 
 void print_intro() {
     std::cout << "Welcome to the MontyHall show!" << std::endl;
 }
 
 bool run_simulation(const char *name, bool player_keep_same_door);
-void thread_simulation(int iterations, int thread_id);
+void thread_simulation(int iterations, int *won_keep_same_door,
+                       int *won_choose_new_door);
 
-void thread_simulation(int iterations, int thread_id) {
-    spdlog::info("Running thread {} with {} iterations", thread_id, iterations);
-    /*
-    int won_keep_same_door = 0;
-    int won_choose_new_door = 0;
-    */
+std::mutex thread_simulation_mutex;
+
+void thread_simulation(int iterations, int *won_keep_same_door,
+                       int *won_choose_new_door) {
+    spdlog::info("Running new thread with {} iterations", iterations);
     for (int i = 0; i < iterations; ++i) {
         spdlog::debug("Running iteration number #{}", i + 1);
-        /*
-        won_keep_same_door += run_simulation("thread_1", true);
-        won_choose_new_door += run_simulation("thread 1", false);
-        */
+        bool keep_same_door_won = run_simulation("thread_1", true);
+        bool choose_new_door_won = run_simulation("thread_1", false);
+        {
+            const std::lock_guard<std::mutex> lock(thread_simulation_mutex);
+            *won_keep_same_door += keep_same_door_won;
+            *won_choose_new_door += choose_new_door_won;
+        }
     }
-    spdlog::info("");
 }
 
 bool run_simulation(const char *name, bool player_keep_same_door) {
@@ -51,7 +53,6 @@ bool run_simulation(const char *name, bool player_keep_same_door) {
                   (has_won ? "yes" : "no"));
     return has_won;
 }
-
 int main(int argc, char *argv[]) {
     /* configure spdlog */
     spdlog::level::level_enum verbosity = spdlog::level::info;
@@ -96,15 +97,26 @@ int main(int argc, char *argv[]) {
     spdlog::set_level(verbosity);
     spdlog::info("Monty Hall Problem Simulatior (C++11)");
     spdlog::debug("Running simulation for {} iterations", number_of_iterations);
-    for (int j = 0; j < number_of_jobs; ++j) {
-        thread_simulation(number_of_iterations, 10);
+    int rest = number_of_iterations % number_of_jobs;
+    int division = number_of_iterations / number_of_jobs;
+    std::vector<std::thread> list_of_threads;
+    for (int j = 0; j < number_of_jobs - 1; ++j) {
+        std::thread t(&thread_simulation, number_of_iterations / number_of_jobs,
+                      &won_keep_same_door, &won_choose_new_door);
+        list_of_threads.push_back(std::move(t));
     }
-    /*
-    for (int i = 0; i < number_of_iterations; ++i) {
-        spdlog::debug("Running iteration number #{}", number_of_iterations + 1);
-        won_keep_same_door += run_simulation("thread_1", true);
-        won_choose_new_door += run_simulation(false);
-    }
+
+    // to the last thread assign the rest of the division if the number of
+    // iterations cannot be divided by the number of jobs, otherwise assing the
+    // result of ehe division
+    std::thread t(&thread_simulation, (rest > 0) ? rest : division,
+                  &won_keep_same_door, &won_choose_new_door);
+    list_of_threads.push_back(std::move(t));
+    /* wait for all threads to end */
+    std::for_each(list_of_threads.begin(), list_of_threads.end(),
+                  [](std::thread &t) { t.join(); });
+
+    /* print results */
     float probability_choose_new_door =
         (static_cast<float>(won_choose_new_door) /
          static_cast<float>(number_of_iterations)) *
@@ -117,5 +129,4 @@ int main(int argc, char *argv[]) {
                  probability_keep_same_door);
     spdlog::info("Probability of winning changing the door {:03.2f}%",
                  probability_choose_new_door);
-                 */
 }

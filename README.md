@@ -75,7 +75,22 @@ In order to build this project run:
 cd build 
 cmake .. 
 make -j<n_cores>
-./monty_hall_simulator [-s <number_of_simulations>]
+```
+
+in order to use `monty_hall_simulator`, here's some help:
+
+```
+Usage: monty_hall_simulation [--help] [--version] [-s VAR] [-j VAR] [-v] [-f VAR]
+
+This software implements a simulation of the Monty Hall problem, it will run the amount of simulations specified by the -s flag
+
+Optional arguments:
+  -h, --help    shows help message and exits 
+  -v, --version prints version information and exits 
+  -s            The number of simulations to run [default: 1000]
+  -j            The number of jobs to run simultaneously [default: 1]
+  -v            Set logging to debug level for verbosity 
+  -f            Set path of logfile [default: ""]
 ```
 
 To run unit and integration tests:

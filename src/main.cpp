@@ -7,21 +7,25 @@
 
 #include "MontyHall.hpp"
 #include "Player.hpp"
+#include "spdlog/sinks/basic_file_sink.h"
+#include "spdlog/sinks/stdout_sinks.h"
 #include "spdlog/spdlog.h"
 #include <argparse/argparse.hpp>
 
 static constexpr int number_of_doors = 2;
 static constexpr char thread_log_pattern[] = "[%H:%M:%S %z] [thread %t] %v";
 
-void print_intro() {
-    std::cout << "Welcome to the MontyHall show!" << std::endl;
-}
-
+/* declare prototype functions */
 bool run_simulation(const char *name, bool player_keep_same_door);
 void thread_simulation(int iterations, int *won_keep_same_door,
                        int *won_choose_new_door);
+void print_intro();
 
 std::mutex thread_simulation_mutex;
+
+void print_intro() {
+    std::cout << "Welcome to the MontyHall show!" << std::endl;
+}
 
 void thread_simulation(int iterations, int *won_keep_same_door,
                        int *won_choose_new_door) {
@@ -56,6 +60,7 @@ bool run_simulation(const char *name, bool player_keep_same_door) {
 }
 int main(int argc, char *argv[]) {
     /* configure spdlog */
+    std::vector<spdlog::sink_ptr> sinks;
     spdlog::level::level_enum verbosity = spdlog::level::info;
     spdlog::set_pattern(thread_log_pattern);
 
@@ -75,6 +80,9 @@ int main(int argc, char *argv[]) {
         .default_value(false)
         .implicit_value(true)
         .nargs(0);
+    program.add_argument("-f")
+        .help("Set path of logfile")
+        .default_value(std::string(""));
     program.add_description(
         "This software implements a simulation of the "
         "Monty Hall problem, it will run the amount of simulations "
@@ -90,6 +98,20 @@ int main(int argc, char *argv[]) {
         std::exit(1);
     }
 
+    // configure loggers
+    sinks.push_back(std::make_shared<spdlog::sinks::stdout_sink_mt>());
+    // if file is specified then add a logger sink to that file
+    // this will make spdlog to start writing to a file specified to -f
+    std::string log_path = program.get<std::string>("-f");
+    if (log_path.compare("") != 0) {
+        sinks.push_back(
+            std::make_shared<spdlog::sinks::basic_file_sink_mt>(log_path));
+    }
+    auto combined_logger =
+        std::make_shared<spdlog::logger>("logger", begin(sinks), end(sinks));
+    spdlog::register_logger(combined_logger);
+    spdlog::set_default_logger(spdlog::get("logger"));
+
     // parse the number of iterations
     int number_of_iterations = program.get<int>("-s");
     int number_of_jobs = program.get<int>("-j");
@@ -100,12 +122,19 @@ int main(int argc, char *argv[]) {
     spdlog::set_level(verbosity);
     spdlog::info("Monty Hall Problem Simulatior (C++11)");
     spdlog::debug("Running simulation for {} iterations", number_of_iterations);
+
+    /* determine if all the threads will have the same amount of iterations */
     int rest = number_of_iterations % number_of_jobs;
     int division = number_of_iterations / number_of_jobs;
     std::vector<std::thread> list_of_threads;
 
     // start measuring time before running all simulations
     auto t1 = std::chrono::high_resolution_clock::now();
+
+    /*
+     * for each job, instantiate a thread and push it back to the list of
+     * threads
+     */
     for (int j = 0; j < number_of_jobs - 1; ++j) {
         std::thread t(&thread_simulation, number_of_iterations / number_of_jobs,
                       &won_keep_same_door, &won_choose_new_door);
@@ -114,16 +143,17 @@ int main(int argc, char *argv[]) {
 
     // to the last thread assign the rest of the division if the number of
     // iterations cannot be divided by the number of jobs, otherwise assing the
-    // result of ehe division
+    // result of the division
     std::thread t(&thread_simulation, (rest > 0) ? rest : division,
                   &won_keep_same_door, &won_choose_new_door);
     list_of_threads.push_back(std::move(t));
     /* wait for all threads to end */
     std::for_each(list_of_threads.begin(), list_of_threads.end(),
                   [](std::thread &t) { t.join(); });
+    // stop measuring time
     auto t2 = std::chrono::high_resolution_clock::now();
 
-    /* print results */
+    /* calculate print results */
     float probability_choose_new_door =
         (static_cast<float>(won_choose_new_door) /
          static_cast<float>(number_of_iterations)) *
@@ -139,4 +169,5 @@ int main(int argc, char *argv[]) {
     auto duration =
         std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
     spdlog::info("Execution time {}uS", (duration));
+    spdlog::shutdown();
 }

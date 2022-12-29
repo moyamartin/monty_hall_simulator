@@ -53,14 +53,14 @@ installed:
 * [`pre-commit`](https://pre-commit.com/)
 * [`clang-format`](https://clang.llvm.org/docs/ClangFormat.html)
 * [`cppcheck`](https://cppcheck.sourceforge.io/)
-* [`libc++-dev`](https://libcxx.llvm.org/)
+* [`libstdc++-dev`](https://libcxx.llvm.org/)
 
 TL;DR:
 
 Run the following command
 
 ```
-sudo apt install cmake build-essentials pre-commit python3-pip clang-format cppcheck
+sudo apt install cmake build-essentials pre-commit python3-pip clang-format cppcheck libstdc++-dev
 pip install pre-commit
 ```
 
@@ -99,3 +99,13 @@ To run unit and integration tests:
 cd build
 ctest
 ```
+
+# Features
+
+* Standard logging system to `stdout` with info, warning and debug levels (debug
+  level is enabled with `-v` flag).
+* All logging can be sent to a file using the `-f <path_to_file_arg>`
+* Several simulations can be processed with simultaneous jobs using the `-j
+  <n_cores>` flag
+* the number of configurations can be set by the user with the flag `-j
+  <int_value>`

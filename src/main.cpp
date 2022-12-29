@@ -1,5 +1,6 @@
 /// Copyright 2022 Martin Moya <moyamartin1@gmail.com>
 //
+#include <chrono>
 #include <iostream>
 #include <mutex>
 #include <thread>
@@ -94,12 +95,17 @@ int main(int argc, char *argv[]) {
     int number_of_jobs = program.get<int>("-j");
     int won_keep_same_door = 0;
     int won_choose_new_door = 0;
+
+    /* start simulations */
     spdlog::set_level(verbosity);
     spdlog::info("Monty Hall Problem Simulatior (C++11)");
     spdlog::debug("Running simulation for {} iterations", number_of_iterations);
     int rest = number_of_iterations % number_of_jobs;
     int division = number_of_iterations / number_of_jobs;
     std::vector<std::thread> list_of_threads;
+
+    // start measuring time before running all simulations
+    auto t1 = std::chrono::high_resolution_clock::now();
     for (int j = 0; j < number_of_jobs - 1; ++j) {
         std::thread t(&thread_simulation, number_of_iterations / number_of_jobs,
                       &won_keep_same_door, &won_choose_new_door);
@@ -115,6 +121,7 @@ int main(int argc, char *argv[]) {
     /* wait for all threads to end */
     std::for_each(list_of_threads.begin(), list_of_threads.end(),
                   [](std::thread &t) { t.join(); });
+    auto t2 = std::chrono::high_resolution_clock::now();
 
     /* print results */
     float probability_choose_new_door =
@@ -129,4 +136,7 @@ int main(int argc, char *argv[]) {
                  probability_keep_same_door);
     spdlog::info("Probability of winning changing the door {:03.2f}%",
                  probability_choose_new_door);
+    auto duration =
+        std::chrono::duration_cast<std::chrono::microseconds>(t2 - t1).count();
+    spdlog::info("Execution time {}uS", (duration));
 }

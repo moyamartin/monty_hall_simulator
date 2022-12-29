@@ -109,3 +109,7 @@ ctest
   <n_cores>` flag
 * the number of configurations can be set by the user with the flag `-j
   <int_value>`
+
+# TODO
+
+* encapsulate threads function into its own class to make it more readable
